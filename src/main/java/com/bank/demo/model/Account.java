@@ -1,17 +1,30 @@
 package com.bank.demo.model;
 
-import org.springframework.data.annotation.Id;
+import java.util.List;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+@Document(collection ="bankAccounts")
 public class Account {
 	
 	
 
 	    @Id
 	    private String id;
+	    
 	    private String customerId;
 	    private double balance;
+	    private List<AccountTransfer> tranferHistory;
 
-	    public Account(String customerId, double deposit) {
+	    public List<AccountTransfer> getTranferHistory() {
+			return tranferHistory;
+		}
+
+		public void setTranferHistory(List<AccountTransfer> tranferHistory) {
+			this.tranferHistory = tranferHistory;
+		}
+
+		public Account(String customerId, double deposit) {
 	        this.customerId = customerId;
 	        this.balance = deposit;
 	    }

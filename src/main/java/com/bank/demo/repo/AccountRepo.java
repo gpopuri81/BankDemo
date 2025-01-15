@@ -1,4 +1,4 @@
-package com.bank.repo;
+package com.bank.demo.repo;
 
 import java.util.List;
 

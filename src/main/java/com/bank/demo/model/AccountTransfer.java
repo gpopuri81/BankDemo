@@ -2,19 +2,15 @@ package com.bank.demo.model;
 
 import java.time.LocalDateTime;
 
+
 public class AccountTransfer {
 	
 	private String fromAccountId;
     private String toAccountId;
     private double amount;
-    private LocalDateTime timestamp;
+    private String timestamp;
 
-    public AccountTransfer(String fromAccountId, String toAccountId, double amount) {
-        this.fromAccountId = fromAccountId;
-        this.toAccountId = toAccountId;
-        this.amount = amount;
-        this.timestamp = LocalDateTime.now();
-    }
+ 
 
 	public String getFromAccountId() {
 		return fromAccountId;
@@ -40,11 +36,11 @@ public class AccountTransfer {
 		this.amount = amount;
 	}
 
-	public LocalDateTime getTimestamp() {
+	public String getTimestamp() {
 		return timestamp;
 	}
 
-	public void setTimestamp(LocalDateTime timestamp) {
+	public void setTimestamp(String timestamp) {
 		this.timestamp = timestamp;
 	}
 

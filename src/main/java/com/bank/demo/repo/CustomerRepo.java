@@ -1,4 +1,4 @@
-package com.bank.repo;
+package com.bank.demo.repo;
 
 
 import org.springframework.data.mongodb.repository.MongoRepository;
