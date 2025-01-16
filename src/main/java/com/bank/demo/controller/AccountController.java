@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,7 +15,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bank.demo.model.Account;
 import com.bank.demo.model.AccountTransfer;
+import com.bank.demo.request.CreateAccountRequest;
 import com.bank.demo.request.CreateBankAccountRequest;
+import com.bank.demo.response.CreateAccountResponse;
 import com.bank.demo.service.AccountService;
 
 import jakarta.validation.Valid;
@@ -28,36 +29,10 @@ public class AccountController {
 	private AccountService accountService;
 
 	@PostMapping(value = "/createAccount")
-	public ResponseEntity<Account> createAccount(@Valid @RequestBody CreateBankAccountRequest request) {
-		Account bankAccount = null;
-		try {
-		bankAccount = accountService.createBankAccount(request.getCustomerId(), request.getInitialDeposit());
-		}
-		catch(Exception ex) {
-			ex.printStackTrace();
-		}
+	public ResponseEntity<CreateAccountResponse> createAccount(@Valid @RequestBody CreateAccountRequest request) {
+		CreateAccountResponse bankAccount = accountService.createAccount(request);
 		return new ResponseEntity<>(bankAccount, HttpStatus.CREATED);
 	}
 
-	@PostMapping(value = "/transfer")
-	public ResponseEntity<String> transferFunds(@RequestParam String fromAccountId, @RequestParam String toAccountId,
-			@RequestParam double amount) {
-		accountService.transferAmount(fromAccountId, toAccountId, amount);
-
-		return new ResponseEntity<>(HttpStatus.OK);
-		/*
-		 * if (success) { return new ResponseEntity<>("Transfer successful",
-		 * HttpStatus.OK); } else { return new ResponseEntity<>("Transfer failed",
-		 * HttpStatus.BAD_REQUEST); }
-		 */
-	}
-
-	@RequestMapping(value = "/accounts/{accountId}/transfers", method = RequestMethod.GET)
-	public ResponseEntity<List<AccountTransfer>> getTransferHistory(@PathVariable String accountId) {
-		List<AccountTransfer> tranferHistory = accountService.getTransferHistory(accountId);
-
-		return new ResponseEntity<>(tranferHistory, HttpStatus.OK);
-
-	}
 
 }

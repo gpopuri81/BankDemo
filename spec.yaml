@@ -1,0 +1,102 @@
+openapi: 3.0.0
+info:
+  title: Bank API
+  description: API for managing bank accounts and transactions
+  version: 1.0.0
+servers:
+  - url: https://api.bankdemo.com/v1
+paths:
+  /customer:
+    get:
+      summary: Get customer information
+      responses:
+        '200':
+          description: Customer information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ssn:
+                    type: string
+                  dateOfBirth:
+                    type: string
+                    format: date
+  /accounts:
+    post:
+      summary: Create a new bank account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/CreateAccountExistingCustomerRequest'
+                - $ref: '#/components/schemas/CreateAccountNewCustomerRequest'
+      responses:
+        '201':
+          description: Account created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+  /accounts/{accountId}:
+    get:
+      summary: Get a specific bank account
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A single bank account
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+components:
+  schemas:
+    CreateAccountExistingCustomerRequest:
+      type: object
+      properties:
+        customerId:
+          type: string
+        balance:
+          type: number
+          format: float
+        existingAccountNumber:
+          type: string
+      required:
+        - customerId
+        - balance
+    CreateAccountNewCustomerRequest:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        dateOfBirth:
+          type: string
+          format: date
+        ssn:
+          type: string
+        balance:
+          type: number
+          format: float
+      required:
+        - firstName
+        - lastName
+        - dateOfBirth
+        - ssn
+        - balance
+    Account:
+      type: object
+      properties:
+        accountNumber:
+          type: string
+        balance:
+          type: number
+          format: float
