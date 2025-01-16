@@ -1,5 +1,6 @@
 package com.bank.demo.service;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +17,8 @@ public class CustomerService {
     @Autowired
     private CustomerRepository customerRepository;
 
-    public CustomerResponse findCustomerByDobAndSsn(String dob, String ssn) {
-        Optional<Customer> customer = customerRepository.findByDobAndSsn(dob, ssn);
+    public CustomerResponse findCustomerByDobAndSsn(String dateOfBirth, String ssn) {
+        Optional<Customer> customer = customerRepository.findByDateOfBirthAndSsn(LocalDate.parse(dateOfBirth), ssn);
         if (customer.isPresent()) {
             return CustomerResponse.builder().customerId(customer.get().getCustomerId()).build(); //Returning basic information 
         } else {

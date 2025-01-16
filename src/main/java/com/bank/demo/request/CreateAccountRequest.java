@@ -11,8 +11,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
   include = JsonTypeInfo.As.PROPERTY,
   property = "type")
 @JsonSubTypes({
-  @JsonSubTypes.Type(value = CreateAccountExistingCustomerRequest.class, name = "CreateAccountExistingCustomerRequest"),
-  @JsonSubTypes.Type(value = CreateAccountNewCustomerRequest.class, name = "CreateAccountNewCustomerRequest")
+  @JsonSubTypes.Type(value = CreateAccountExistingCustomerRequest.class, name = "EXISTING_CUSTOMER"),
+  @JsonSubTypes.Type(value = CreateAccountNewCustomerRequest.class, name = "NEW_CUSTOMER")
 })
 public interface CreateAccountRequest {
 

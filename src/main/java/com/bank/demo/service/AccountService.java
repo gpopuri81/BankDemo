@@ -33,7 +33,7 @@ public class AccountService {
 		 if (createAccountRequest instanceof CreateAccountExistingCustomerRequest){
 			 CreateAccountExistingCustomerRequest createAccountExistingCustomerRequest = (CreateAccountExistingCustomerRequest) createAccountRequest;
 			 //Check if customer exists
-			 customerRepository.findById(createAccountExistingCustomerRequest.getCustomerId())
+			 customerRepository.findByCustomerId(createAccountExistingCustomerRequest.getCustomerId())
 					 .orElseThrow(() -> new CustomerNotFoundException("Customer not found with given id"));
 			 Account bankAccount = Account.builder().customerId(createAccountExistingCustomerRequest.getCustomerId()).accountNumber(UUID.randomUUID().toString())//Need to bank specific account number generator
 					 .balance(createAccountExistingCustomerRequest.getBalance()).build();
@@ -46,7 +46,7 @@ public class AccountService {
 				//TODO check balance on existing account and transfer amount to new account
 				// if Amount is available then transaction status is COMPLETED else PENDING DEPOSIT
 			 }
-			return CreateAccountResponse.builder().accountNumber(bankAccount.getAccountNumber()).build();
+			return CreateAccountResponse.builder().accountNumber(bankAccount.getAccountNumber()).customerId(createAccountExistingCustomerRequest.getCustomerId()).build();
 		 }
 		 else {
 			 CreateAccountNewCustomerRequest createAccountNewCustomerRequest = (CreateAccountNewCustomerRequest) createAccountRequest;
@@ -59,7 +59,7 @@ public class AccountService {
 			 Account bankAccount = Account.builder().customerId(customer.getCustomerId()).accountNumber(UUID.randomUUID().toString())//Need to bank specific account number generator
 			 .balance(createAccountNewCustomerRequest.getBalance()).build();
 			 accountRepository.save(bankAccount);
-			 return CreateAccountResponse.builder().accountNumber(bankAccount.getAccountNumber()).build();
+			 return CreateAccountResponse.builder().accountNumber(bankAccount.getAccountNumber()).customerId(customer.getCustomerId()).build();
 
 		 }
 	}
