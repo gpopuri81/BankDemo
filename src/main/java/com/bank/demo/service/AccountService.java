@@ -34,6 +34,7 @@ public class AccountService {
 	@Autowired
 	private CustomerRepository customerRepository;
 
+	@Autowired
 	private TransactionRepo transactionRepository;
 
 	
@@ -90,6 +91,13 @@ public class AccountService {
 			 Account bankAccount = Account.builder().customerId(customer.getCustomerId()).accountNumber(UUID.randomUUID().toString())//Need to bank specific account number generator
 			 .balance(createAccountNewCustomerRequest.getBalance()).build();
 			 accountRepository.save(bankAccount);
+
+			 Transaction transaction = Transaction.builder().accountNumber(bankAccount.getAccountNumber())
+					.amount(Double.valueOf(createAccountNewCustomerRequest.getBalance().doubleValue()))
+					.transactionDate(OffsetDateTime.now()).transactionStatus(TransactionStatus.PENDING).description("initial deposit")
+					.transactionType(TransactionType.CREDIT).build();
+					transactionRepository.save(transaction); //Handle tranasction creation failure vai Camel or some MQ system
+
 			 return CreateAccountResponse.builder().accountNumber(bankAccount.getAccountNumber()).customerId(customer.getCustomerId()).build();
 
 		 }
