@@ -16,9 +16,11 @@ import lombok.experimental.SuperBuilder;
 public class Transaction {
     @Id
     private String transactionId;
-    private String accountId;
+    private String accountNumber;
     private OffsetDateTime transactionDate;
     private Double amount;
     private String merchant;
+    private String description;
+    private TransactionStatus transactionStatus; // e.g., "completed", "pending"
     private TransactionType transactionType; // e.g., "purchase", "refund"
 }

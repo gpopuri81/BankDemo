@@ -1,6 +1,8 @@
 package com.bank.demo.service;
 
+import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,8 +12,12 @@ import com.bank.demo.exception.CustomerNotFoundException;
 import com.bank.demo.model.Account;
 import com.bank.demo.model.AccountTransfer;
 import com.bank.demo.model.Customer;
+import com.bank.demo.model.Transaction;
+import com.bank.demo.model.TransactionStatus;
+import com.bank.demo.model.TransactionType;
 import com.bank.demo.repo.AccountRepo;
 import com.bank.demo.repo.CustomerRepository;
+import com.bank.demo.repo.TransactionRepo;
 import com.bank.demo.request.CreateAccountExistingCustomerRequest;
 import com.bank.demo.request.CreateAccountNewCustomerRequest;
 import com.bank.demo.request.CreateAccountRequest;
@@ -28,6 +34,8 @@ public class AccountService {
 	@Autowired
 	private CustomerRepository customerRepository;
 
+	private TransactionRepo transactionRepository;
+
 	
 	public CreateAccountResponse createAccount(CreateAccountRequest createAccountRequest) {
 		 if (createAccountRequest instanceof CreateAccountExistingCustomerRequest){
@@ -39,12 +47,35 @@ public class AccountService {
 					 .balance(createAccountExistingCustomerRequest.getBalance()).build();
 					 accountRepository.save(bankAccount);
 
+			//Ideally these needs to move to backend process like events using camel or some MQ systems
+
 			 if (StringUtil.isNullOrEmpty(createAccountExistingCustomerRequest.getExistingAccountNumber())){
-				//TODO Save transaction with Pending Deporsit status
-				//Create a transaction with status PENDING DEPOSIT
+				Transaction transaction = Transaction.builder().accountNumber(bankAccount.getAccountNumber())
+						.amount(Double.valueOf(createAccountExistingCustomerRequest.getBalance().doubleValue()))
+						.transactionDate(OffsetDateTime.now()).transactionStatus(TransactionStatus.PENDING).description("initial deposit")
+						.transactionType(TransactionType.CREDIT).build();
+						transactionRepository.save(transaction); //Handle tranasction creation failure vai Camel or some MQ system
 			 } else {
-				//TODO check balance on existing account and transfer amount to new account
-				// if Amount is available then transaction status is COMPLETED else PENDING DEPOSIT
+				Optional<Account> optionalAccount = accountRepository.findByAccountNumber(createAccountExistingCustomerRequest.getExistingAccountNumber());
+				if (optionalAccount.isPresent() && checkBalanceExists(optionalAccount.get(), createAccountExistingCustomerRequest.getBalance())){
+				
+						Transaction creditTransaction = Transaction.builder().accountNumber(createAccountExistingCustomerRequest.getExistingAccountNumber())
+						.amount(Double.valueOf(createAccountExistingCustomerRequest.getBalance().doubleValue()))
+						.transactionDate(OffsetDateTime.now()).transactionStatus(TransactionStatus.COMPLETED).description("With Drawal for new account setup") 
+						.transactionType(TransactionType.DEBIT).build();
+						Transaction debitTransaction = Transaction.builder().accountNumber(bankAccount.getAccountNumber())
+						.amount(Double.valueOf(createAccountExistingCustomerRequest.getBalance().doubleValue()))
+						.transactionDate(OffsetDateTime.now()).transactionStatus(TransactionStatus.COMPLETED).description("initial deposit")
+						.transactionType(TransactionType.CREDIT).build();
+						transactionRepository.saveAll(List.of(creditTransaction, debitTransaction)); //Handle tranasction creation failure vai Camel or some MQ system
+				} else {
+					Transaction transaction = Transaction.builder().accountNumber(bankAccount.getAccountNumber())
+					.amount(Double.valueOf(createAccountExistingCustomerRequest.getBalance().doubleValue()))
+					.transactionDate(OffsetDateTime.now()).transactionStatus(TransactionStatus.PENDING).description("initial deposit")
+					.transactionType(TransactionType.CREDIT).build();
+					transactionRepository.save(transaction); //Handle tranasction creation failure vai Camel or some MQ system
+				}
+				
 			 }
 			return CreateAccountResponse.builder().accountNumber(bankAccount.getAccountNumber()).customerId(createAccountExistingCustomerRequest.getCustomerId()).build();
 		 }
@@ -62,6 +93,10 @@ public class AccountService {
 			 return CreateAccountResponse.builder().accountNumber(bankAccount.getAccountNumber()).customerId(customer.getCustomerId()).build();
 
 		 }
+	}
+
+	private boolean checkBalanceExists(Account account, float balance) {
+		return account.getBalance() > balance;
 	}
 
 }

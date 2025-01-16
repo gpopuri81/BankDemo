@@ -4,6 +4,7 @@ public enum TransactionType {
     PURCHASE,
     FEE,
     REFUND,
-    CREDIT
+    CREDIT,
+    DEBIT
 }
 
